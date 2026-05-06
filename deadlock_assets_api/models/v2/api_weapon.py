@@ -4,7 +4,11 @@ from pydantic import ConfigDict, computed_field
 
 from deadlock_assets_api.models.v2.api_item_base import ItemBaseV2
 from deadlock_assets_api.models.v2.raw_hero import RawHeroV2
-from deadlock_assets_api.models.v2.raw_weapon import RawWeaponInfoV2, RawWeaponV2
+from deadlock_assets_api.models.v2.raw_weapon import (
+    RawCustomCrosshairSettingsV2,
+    RawWeaponInfoV2,
+    RawWeaponV2,
+)
 
 
 class WeaponInfoV2(RawWeaponInfoV2):
@@ -115,6 +119,9 @@ class WeaponV2(ItemBaseV2):
     type: Literal["weapon"] = "weapon"
 
     weapon_info: WeaponInfoV2 | None = None
+    crosshair_css_class: str | None = None
+    use_custom_crosshair_settings: bool | None = None
+    custom_crosshair_settings: RawCustomCrosshairSettingsV2 | None = None
 
     @classmethod
     def from_raw_item(

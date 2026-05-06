@@ -12,6 +12,30 @@ from deadlock_assets_api.utils import parse_css_ability_icon
 LOGGER = logging.getLogger(__name__)
 
 
+class RawCustomCrosshairSettingsV2(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    pip_width: int | None = Field(None, validation_alias="m_nPipWidth")
+    pip_height: int | None = Field(None, validation_alias="m_nPipHeight")
+    pip_outline_width: int | None = Field(None, validation_alias="m_nPipOutlineWidth")
+    pip_outline_gap: int | None = Field(None, validation_alias="m_nPipOutlineGap")
+    pip_opacity: float | None = Field(None, validation_alias="m_flPipOpacity")
+    pip_outline_opacity: float | None = Field(None, validation_alias="m_flPipOutlineOpacity")
+    pip_color: list[int] | None = Field(None, validation_alias="m_PipColor")
+    pip_outline_color: list[int] | None = Field(None, validation_alias="m_PipOutlineColor")
+    dot_radius: int | None = Field(None, validation_alias="m_nDotRadius")
+    dot_outline_width: int | None = Field(None, validation_alias="m_nDotOutlineWidth")
+    dot_outline_gap: int | None = Field(None, validation_alias="m_nDotOutlineGap")
+    dot_opacity: float | None = Field(None, validation_alias="m_flDotOpacity")
+    dot_outline_opacity: float | None = Field(None, validation_alias="m_flDotOutlineOpacity")
+    dot_color: list[int] | None = Field(None, validation_alias="m_DotColor")
+    dot_outline_color: list[int] | None = Field(None, validation_alias="m_DotOutlineColor")
+    spread_indicating_element: str | None = Field(
+        None, validation_alias="m_SpreadIndicatingElement"
+    )
+    base_spread: float | None = Field(None, validation_alias="m_flBaseSpread")
+
+
 class RawWeaponInfoHorizontalRecoilV2(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -154,6 +178,13 @@ class RawWeaponV2(RawItemBaseV2):
     type: Literal["weapon"] = "weapon"
 
     weapon_info: RawWeaponInfoV2 | None = Field(None, validation_alias="m_WeaponInfo")
+    crosshair_css_class: str | None = Field(None, validation_alias="m_strCrosshairCSSClass")
+    use_custom_crosshair_settings: bool | None = Field(
+        None, validation_alias="m_bUseCustomCrosshairSettings"
+    )
+    custom_crosshair_settings: RawCustomCrosshairSettingsV2 | None = Field(
+        None, validation_alias="m_CustomCrosshairSettings"
+    )
 
     @model_validator(mode="after")
     def check_image_path(self):
