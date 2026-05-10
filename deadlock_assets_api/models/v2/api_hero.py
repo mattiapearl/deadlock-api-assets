@@ -142,19 +142,27 @@ def load_hero_style_colors(css_path: str = "res/citadel_base_styles.css") -> dic
     return {f"hero_{name.lower()}": color for name, color in _HERO_STYLE_COLOR_RE.findall(css)}
 
 
+def _hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
+    h = hex_color.lstrip("#")
+    return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+
+
 class HeroColorsV2(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     ui: tuple[int, int, int]
-    style: str | None = None
+    style: tuple[int, int, int] | None = None
+    style_hex: str | None = None
 
     @classmethod
     def from_raw_hero(
         cls, raw_hero: RawHeroV2, hero_style_colors: dict[str, str] | None = None
     ) -> HeroColorsV2:
+        style_hex = (hero_style_colors or {}).get(raw_hero.class_name)
         return cls(
             ui=raw_hero.color_ui,
-            style=(hero_style_colors or {}).get(raw_hero.class_name),
+            style=_hex_to_rgb(style_hex) if style_hex else None,
+            style_hex=style_hex,
         )
 
 
