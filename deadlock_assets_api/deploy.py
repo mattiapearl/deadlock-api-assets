@@ -16,7 +16,7 @@ from deadlock_assets_api.models.v1.map import MapV1
 from deadlock_assets_api.models.v1.steam_info import SteamInfoV1
 from deadlock_assets_api.models.v2.api_ability import AbilityV2
 from deadlock_assets_api.models.v2.api_accolade import AccoladeV2
-from deadlock_assets_api.models.v2.api_hero import HeroV2
+from deadlock_assets_api.models.v2.api_hero import HeroV2, load_hero_style_colors
 from deadlock_assets_api.models.v2.api_item import ItemV2
 from deadlock_assets_api.models.v2.api_upgrade import UpgradeV2
 from deadlock_assets_api.models.v2.api_weapon import WeaponV2
@@ -215,7 +215,11 @@ def build_build_tags(localization: dict[str, str]) -> list[dict]:
 
 
 def build_heroes(raw_heroes, localization: dict[str, str]) -> list[HeroV2]:
-    return [HeroV2.from_raw_hero(r, localization).model_dump(exclude_none=True) for r in raw_heroes]
+    hero_style_colors = load_hero_style_colors()
+    return [
+        HeroV2.from_raw_hero(r, localization, hero_style_colors).model_dump(exclude_none=True)
+        for r in raw_heroes
+    ]
 
 
 def build_accolades(raw_accolades, localization: dict[str, str]) -> list[AccoladeV2]:

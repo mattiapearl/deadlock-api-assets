@@ -1,4 +1,5 @@
 import json
+import re
 
 from pydantic import BaseModel, ConfigDict
 
@@ -125,15 +126,35 @@ class HeroPhysicsV2(BaseModel):
         )
 
 
+_HERO_STYLE_COLOR_RE = re.compile(
+    r"@define\s+([A-Za-z_][A-Za-z0-9_]*)Color\s*:\s*(#[0-9A-Fa-f]{6,8})\s*;"
+)
+
+
+def load_hero_style_colors(css_path: str = "res/citadel_base_styles.css") -> dict[str, str]:
+    """Parse hero color definitions from the citadel base styles CSS.
+
+    Returns a mapping from hero ``class_name`` (e.g. ``hero_priest``) to its
+    hex color string (e.g. ``#BD3599``).
+    """
+    with open(css_path) as f:
+        css = f.read()
+    return {f"hero_{name.lower()}": color for name, color in _HERO_STYLE_COLOR_RE.findall(css)}
+
+
 class HeroColorsV2(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     ui: tuple[int, int, int]
+    style: str | None = None
 
     @classmethod
-    def from_raw_hero(cls, raw_hero: RawHeroV2) -> HeroColorsV2:
+    def from_raw_hero(
+        cls, raw_hero: RawHeroV2, hero_style_colors: dict[str, str] | None = None
+    ) -> HeroColorsV2:
         return cls(
             ui=raw_hero.color_ui,
+            style=(hero_style_colors or {}).get(raw_hero.class_name),
         )
 
 
@@ -282,7 +303,12 @@ class HeroV2(BaseModel):
     item_draft_bucketing: dict[str, RawHeroDraftBucketing | None] | None = None
 
     @classmethod
-    def from_raw_hero(cls, raw_hero: RawHeroV2, localization: dict[str, str]) -> HeroV2:
+    def from_raw_hero(
+        cls,
+        raw_hero: RawHeroV2,
+        localization: dict[str, str],
+        hero_style_colors: dict[str, str] | None = None,
+    ) -> HeroV2:
         raw_model = raw_hero.model_dump()
         raw_model["name"] = (
             localization.get(
@@ -321,7 +347,7 @@ class HeroV2(BaseModel):
         )
         raw_model["images"] = HeroImagesV2.from_raw_hero(raw_hero)
         raw_model["physics"] = HeroPhysicsV2.from_raw_hero(raw_hero)
-        raw_model["colors"] = HeroColorsV2.from_raw_hero(raw_hero)
+        raw_model["colors"] = HeroColorsV2.from_raw_hero(raw_hero, hero_style_colors)
         raw_model["level_info"] = {
             k: HeroLevelInfoV2.from_raw_level_info(v) for k, v in raw_hero.level_info.items()
         }
@@ -351,7 +377,10 @@ def test_parse():
     with open("res/localization/citadel_heroes_german.json") as f:
         localization.update(json.load(f)["lang"]["Tokens"])
 
-    heroes = [HeroV2.from_raw_hero(raw_hero, localization) for raw_hero in raw_heroes]
+    hero_style_colors = load_hero_style_colors()
+    heroes = [
+        HeroV2.from_raw_hero(raw_hero, localization, hero_style_colors) for raw_hero in raw_heroes
+    ]
 
     with open("test.json", "w") as f:
         json.dump([hero.model_dump(exclude_none=True) for hero in heroes], f, indent=2)
