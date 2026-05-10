@@ -1,7 +1,7 @@
 import json
 import re
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from deadlock_assets_api.glob import IMAGE_BASE_URL
 from deadlock_assets_api.models.v2.api_item_base import parse_img_path
@@ -153,6 +153,13 @@ class HeroColorsV2(BaseModel):
     ui: tuple[int, int, int]
     style: tuple[int, int, int] | None = None
     style_hex: str | None = None
+
+    @field_validator("style", mode="before")
+    @classmethod
+    def _coerce_style(cls, v):
+        if isinstance(v, str) and v.startswith("#"):
+            return _hex_to_rgb(v)
+        return v
 
     @classmethod
     def from_raw_hero(
