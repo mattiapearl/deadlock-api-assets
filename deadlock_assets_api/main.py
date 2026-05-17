@@ -2,6 +2,7 @@ import asyncio
 import logging.config
 import os
 import sys
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from scalar_fastapi import get_scalar_api_reference, Theme
@@ -11,6 +12,8 @@ from starlette.responses import FileResponse, JSONResponse, RedirectResponse, Re
 from starlette.status import HTTP_308_PERMANENT_REDIRECT
 
 from deadlock_assets_api.logging_middleware import RouterLoggingMiddleware
+from deadlock_assets_api.models.enums import LATEST_VERSION, ValidClientVersions
+from deadlock_assets_api.models.languages import Language
 from deadlock_assets_api.routes import raw, v1, v2
 
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "DEBUG"))
@@ -51,7 +54,51 @@ There are 3 main types of items:
     },
 ]
 
+
+async def _warm_cache() -> None:
+    latest = ValidClientVersions(LATEST_VERSION)
+    english = Language.English
+    LOGGER.info(f"Warming cache for client_version={latest.value}, language={english.value}")
+
+    lang_version_endpoints = [
+        v2.get_heroes,
+        v2.get_items,
+        v2.get_accolades,
+        v2.get_ranks,
+        v2.get_build_tags,
+    ]
+    version_only_endpoints = [
+        v2.get_npc_units,
+        v2.get_misc_entities,
+        v2.get_generic_data,
+        v2.get_loot_tables,
+        v1.get_map,
+        v1.get_colors,
+        v1.get_icons,
+        v1.get_images,
+        v1.get_fonts,
+        v1.get_sounds,
+    ]
+    tasks = [
+        asyncio.to_thread(fn, language=english, client_version=latest)
+        for fn in lang_version_endpoints
+    ] + [asyncio.to_thread(fn, client_version=latest) for fn in version_only_endpoints]
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for fn, result in zip(lang_version_endpoints + version_only_endpoints, results):
+        if isinstance(result, Exception):
+            LOGGER.warning(f"Cache warmup failed for {fn.__name__}: {result}", exc_info=result)
+    LOGGER.info("Cache warmup complete")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await _warm_cache()
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Assets - Deadlock API",
     servers=[{"url": "https://assets.deadlock-api.com"}],
     description="""
