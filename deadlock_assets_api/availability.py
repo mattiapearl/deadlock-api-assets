@@ -18,9 +18,7 @@ def nearest_version_with_file(
     client_version: int, client_versions: list[int], relative_path: str
 ) -> int | None:
     candidates = [
-        version
-        for version in client_versions
-        if version_file_exists(version, relative_path)
+        version for version in client_versions if version_file_exists(version, relative_path)
     ]
     if not candidates:
         return None

@@ -9,9 +9,7 @@ def write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload))
 
 
-def test_client_version_availability_reports_payload_coverage(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_client_version_availability_reports_payload_coverage(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
     write_json(Path("deploy/versions/6016/items/english.json"), [])
     write_json(Path("deploy/versions/6016/generic_data.json"), {})
