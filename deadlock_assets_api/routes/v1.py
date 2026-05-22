@@ -3,6 +3,7 @@ from pydantic import TypeAdapter
 from starlette.responses import FileResponse
 
 from deadlock_assets_api import utils
+from deadlock_assets_api.historical import closest_version_file
 from deadlock_assets_api.models.enums import LATEST_VERSION, ValidClientVersions
 from deadlock_assets_api.models.v1.colors import ColorV1
 from deadlock_assets_api.models.v1.map import MapV1
@@ -62,7 +63,7 @@ def get_images(client_version: ValidClientVersions | None = None) -> dict[str, s
     if client_version is None:
         client_version = ValidClientVersions(LATEST_VERSION)
     return utils.read_parse_data_ta(
-        f"deploy/versions/{client_version.value}/images_data.json", _TA_IMAGES
+        closest_version_file(client_version.value, "images_data.json"), _TA_IMAGES
     )
 
 
