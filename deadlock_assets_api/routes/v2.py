@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import TypeAdapter
 
 from deadlock_assets_api import utils
+from deadlock_assets_api.availability import get_client_version_availability
 from deadlock_assets_api.models.enums import ValidClientVersions, ALL_CLIENT_VERSIONS
 from deadlock_assets_api.models.languages import Language
 from deadlock_assets_api.models.v2.api_accolade import AccoladeV2
@@ -238,6 +239,11 @@ def get_misc_entity(
 @router.get("/client-versions")
 def get_client_versions() -> list[int]:
     return ALL_CLIENT_VERSIONS
+
+
+@router.get("/client-version-availability")
+def get_client_versions_availability() -> list[dict[str, int | bool | None]]:
+    return get_client_version_availability(ALL_CLIENT_VERSIONS)
 
 
 @router.get("/ranks", response_model_exclude_none=True)
