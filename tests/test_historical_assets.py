@@ -68,9 +68,7 @@ def test_generic_data_model_accepts_legacy_street_brawl_draft_shape() -> None:
 
     generic_data = GenericDataV2.model_validate(payload)
 
-    first_round = (
-        generic_data.street_brawl.item_draft_rounds_per_game_round[0].item_draft_rounds[0]
-    )
+    first_round = generic_data.street_brawl.item_draft_rounds_per_game_round[0].item_draft_rounds[0]
     assert first_round.normal_mod_tier.value == 2
     assert first_round.rare_mod_tier.value == 1
 

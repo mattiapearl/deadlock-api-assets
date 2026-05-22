@@ -156,9 +156,7 @@ class ItemDraftRound(BaseModel):
 
     normal_mod_tier: ItemTierV2 = Field(
         ...,
-        validation_alias=AliasChoices(
-            "m_eNormalModTier", "normal_mod_tier", "chance_enhanced"
-        ),
+        validation_alias=AliasChoices("m_eNormalModTier", "normal_mod_tier", "chance_enhanced"),
     )
     rare_mod_tier: ItemTierV2 = Field(
         ...,
@@ -285,9 +283,7 @@ class GenericDataV2(BaseModel):
     weapon_groups: list[ItemGroup] = Field(
         default_factory=list, validation_alias="m_vecWeaponGroups"
     )
-    armor_groups: list[ItemGroup] = Field(
-        default_factory=list, validation_alias="m_vecArmorGroups"
-    )
+    armor_groups: list[ItemGroup] = Field(default_factory=list, validation_alias="m_vecArmorGroups")
     spirit_groups: list[ItemGroup] = Field(
         default_factory=list, validation_alias="m_vecSpiritGroups"
     )
