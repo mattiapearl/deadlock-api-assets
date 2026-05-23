@@ -9,7 +9,7 @@ from css_parser.css import ColorValue, CSSUnknownRule
 from pydantic import TypeAdapter
 
 from deadlock_assets_api.glob import FONTS_BASE_URL, SOUNDS_BASE_URL, SVGS_BASE_URL, IMAGE_BASE_URL
-from deadlock_assets_api.historical import backfill_historical_version_files
+from deadlock_assets_api.historical import backfill_historical_generic_data
 from deadlock_assets_api.main import app
 from deadlock_assets_api.models.languages import Language
 from deadlock_assets_api.models.v1.colors import ColorV1
@@ -317,7 +317,7 @@ if __name__ == "__main__":
     with open(f"{out_folder}/versions/{version_id}/images_data.json", "w") as f:
         json.dump(images_data, f)
 
-    backfill_historical_version_files(out_folder, client_versions, images_data)
+    backfill_historical_generic_data(out_folder, client_versions)
 
     with open(f"{out_folder}/versions/{version_id}/raw_heroes.json", "w") as f:
         json.dump([h.model_dump(exclude_none=True) for h in raw_heroes], f)

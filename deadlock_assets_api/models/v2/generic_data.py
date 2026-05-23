@@ -239,8 +239,8 @@ class StreetBrawl(BaseModel):
     outline_color_team1: list[int] | None = Field(None, validation_alias="m_OutlineColorTeam1")
     outline_color_team2: list[int] | None = Field(None, validation_alias="m_OutlineColorTeam2")
     outline_color_neutral: list[int] | None = Field(None, validation_alias="m_OutlineColorNeutral")
-    item_drafts: dict[ItemTierV2, DraftBuckets | None] = Field(
-        default_factory=dict, validation_alias="m_mapItemTierToItemDraftBuckets"
+    item_drafts: dict[ItemTierV2, DraftBuckets | None] | None = Field(
+        None, validation_alias="m_mapItemTierToItemDraftBuckets"
     )
 
 
@@ -249,7 +249,7 @@ class GenericDataV2(BaseModel):
 
     damage_flash: DamageFlashV2 = Field(..., validation_alias="m_mapDamageFlash")
     glitch_settings: GlitchSettingsV2 = Field(..., validation_alias="m_GlitchSettings")
-    lane_info: list[LaneInfoV2] = Field(default_factory=list, validation_alias="m_LaneInfo")
+    lane_info: list[LaneInfoV2] | None = Field(None, validation_alias="m_LaneInfo")
     new_player_metrics: list[NewPlayerMetricsV2] = Field(..., validation_alias="m_NewPlayerMetrics")
     minimap_team_rebels_color: ColorV1 | None = Field(
         None, validation_alias="m_MinimapTeamRebelsColor"
@@ -263,30 +263,22 @@ class GenericDataV2(BaseModel):
     enemy_objectives_color: ColorV1 | None = Field(None, validation_alias="m_enemyObjectivesColor")
     enemy_zipline_color: ColorV1 | None = Field(None, validation_alias="m_enemyZiplineColor")
     item_price_per_tier: list[int] = Field(..., validation_alias="m_nItemPricePerTier")
-    trooper_kill_gold_share_frac: list[float] = Field(
-        default_factory=list, validation_alias="m_flTrooperKillGoldShareFrac"
+    trooper_kill_gold_share_frac: list[float] | None = Field(
+        None, validation_alias="m_flTrooperKillGoldShareFrac"
     )
-    hero_kill_gold_share_frac: list[float] = Field(
-        default_factory=list, validation_alias="m_flHeroKillGoldShareFrac"
+    hero_kill_gold_share_frac: list[float] | None = Field(
+        None, validation_alias="m_flHeroKillGoldShareFrac"
     )
-    aim_spring_strength: list[float] = Field(
-        default_factory=list, validation_alias="m_AimSpringStrength"
-    )
-    targeting_spring_strength: list[float] = Field(
-        default_factory=list, validation_alias="m_TargetingSpringStrength"
+    aim_spring_strength: list[float] | None = Field(None, validation_alias="m_AimSpringStrength")
+    targeting_spring_strength: list[float] | None = Field(
+        None, validation_alias="m_TargetingSpringStrength"
     )
     objective_params: ObjectiveParams | None = Field(None, validation_alias="m_ObjectiveParams")
     rejuv_params: RejuvParams | None = Field(None, validation_alias="m_RejuvParams")
-    mini_map_offsets: list[MiniMapOffsets] = Field(
-        default_factory=list, validation_alias="m_MiniMapOffsets"
-    )
-    weapon_groups: list[ItemGroup] = Field(
-        default_factory=list, validation_alias="m_vecWeaponGroups"
-    )
-    armor_groups: list[ItemGroup] = Field(default_factory=list, validation_alias="m_vecArmorGroups")
-    spirit_groups: list[ItemGroup] = Field(
-        default_factory=list, validation_alias="m_vecSpiritGroups"
-    )
+    mini_map_offsets: list[MiniMapOffsets] | None = Field(None, validation_alias="m_MiniMapOffsets")
+    weapon_groups: list[ItemGroup] | None = Field(None, validation_alias="m_vecWeaponGroups")
+    armor_groups: list[ItemGroup] | None = Field(None, validation_alias="m_vecArmorGroups")
+    spirit_groups: list[ItemGroup] | None = Field(None, validation_alias="m_vecSpiritGroups")
     street_brawl: StreetBrawl | None = Field(None, validation_alias="m_StreetBrawl")
 
     @field_validator(

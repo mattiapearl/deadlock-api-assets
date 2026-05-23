@@ -7,7 +7,7 @@ from functools import lru_cache
 import css_parser
 from css_parser.css import CSSRuleList, CSSStyleRule
 from fastapi import HTTPException
-from pydantic import TypeAdapter, BaseModel, ValidationError
+from pydantic import TypeAdapter, BaseModel
 
 from deadlock_assets_api.models.enums import ValidClientVersions, ALL_CLIENT_VERSIONS
 from deadlock_assets_api.models.languages import Language
@@ -88,8 +88,6 @@ def read_parse_data_ta[T](filepath: str, type_adapter: TypeAdapter[T]) -> T:
             return type_adapter.validate_json(f.read())
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=f"Data file not found: {filepath}") from exc
-    except ValidationError as exc:
-        raise HTTPException(status_code=422, detail=f"Data validation failed: {filepath}") from exc
 
 
 @lru_cache(maxsize=DATA_CACHE_MAXSIZE)
@@ -100,8 +98,6 @@ def read_parse_data_model[T: BaseModel](filepath: str, model: type[T]) -> T:
             return model.model_validate_json(f.read())
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=f"Data file not found: {filepath}") from exc
-    except ValidationError as exc:
-        raise HTTPException(status_code=422, detail=f"Data validation failed: {filepath}") from exc
 
 
 def validate_client_version(client_version: ValidClientVersions | None = None) -> int:
